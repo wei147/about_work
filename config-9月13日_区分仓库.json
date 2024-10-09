@@ -1,0 +1,399 @@
+{
+  "platforms": [
+    {
+      "platform_name": "Allegro",
+      "inventory_type": "shared",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+            "Template"
+          ],
+          "header": 3,
+          "sku_column": "Reference number/Seller SKU",
+          "quantity_column": "Quantity",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": false
+        }
+      ]
+    },
+    {
+      "platform_name": "SEARS",
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+            "Sheet1"
+          ],
+          "header": 0,
+          "sku_column": "Item Id",
+          "quantity_column": "Updated Available Quantity",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": false
+        }
+      ]
+    },
+    {
+      "platform_name": "AE",
+      "sheets_to_process": [
+        {
+          "sheet_names": [],
+          "header": 1,
+          "sku_column": "SKU编码",
+          "quantity_column": "*商家仓库存",
+          "data_start_row": 0,
+          "skip_if_contains": [
+            "hide",
+            "说明文档"
+          ],
+          "process_all": true
+        },
+        {
+          "sheet_names": [],
+          "header": 1,
+          "sku_column": "SKU编码",
+          "quantity_column": "*库存数量",
+          "data_start_row": 0,
+          "skip_if_contains": [
+            "hide",
+            "说明文档"
+          ],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "MC",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "ItemID",
+          "quantity_column": "Quantity",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "HZ",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU",
+          "quantity_column": "Quantity",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "Shein",
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU",
+          "quantity_column": "可售库存",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        },
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU",
+          "quantity_column": "数量",
+          "data_start_row": 0,
+          "skip_if_contains": [
+            "仓库编码"
+          ],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "NEWEGG",
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 1,
+          "sku_column": "Seller Part #",
+          "quantity_column": "Inventory",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "Shopify",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU",
+          "quantity_column": "On hand",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "TEMU",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 1,
+          "sku_column": "SKU",
+          "quantity_column": "*New quantity",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "ebay",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU",
+          "quantity_column": "*New quantity",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "JD",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU ID",
+          "quantity_column": "现货数量",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "Wal",
+      "inventory_type": "shared",
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU*",
+          "quantity_column": "New Quantity*",
+          "data_start_row": 1,
+          "skip_if_contains": [],
+          "process_all": true
+        }
+      ]
+    },
+    {
+      "platform_name": "HD",
+      "inventory_type": "separate",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 3,
+          "sku_column": "VENDOR SKU",
+          "data_start_row": 1,
+          "skip_if_contains": [],
+          "process_all": true,
+          "convert_warehouse_id": true,
+          "warehouse_pairs": [
+            {
+              "name_column": "Warehouse 1 ID",
+              "stock_column": "Warehouse 1 QTY"
+            },
+            {
+              "name_column": "Warehouse 2 ID",
+              "stock_column": "Warehouse 2 QTY"
+            },
+            {
+              "name_column": "Warehouse 3 ID",
+              "stock_column": "Warehouse 3 QTY"
+            }
+          ],
+          "summary_column": "QTY"
+        }
+      ]
+    },
+    {
+      "platform_name": "LW",
+      "inventory_type": "separate",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 3,
+          "sku_column": "VENDOR SKU",
+          "data_start_row": 1,
+          "skip_if_contains": [],
+          "process_all": true,
+          "convert_warehouse_id": true,
+          "warehouse_pairs": [
+            {
+              "name_column": "Warehouse 1 ID",
+              "stock_column": "Warehouse 1 QTY"
+            },
+            {
+              "name_column": "Warehouse 2 ID",
+              "stock_column": "Warehouse 2 QTY"
+            },
+            {
+              "name_column": "Warehouse 3 ID",
+              "stock_column": "Warehouse 3 QTY"
+            }
+          ],
+          "summary_column": "QTY"
+        }
+      ]
+    },
+    {
+      "platform_name": "WF",
+      "inventory_type": "separate",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "Supplier Part#",
+          "data_start_row": 1,
+          "skip_if_contains": [],
+          "process_all": true,
+          "convert_warehouse_id": true,
+          "warehouse_pairs": [
+            {
+              "name_column": "Supplier ID",
+              "stock_column": "Quantity On Hand"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "platform_name": "AMZ",
+      "inventory_type": "separate",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true,
+          "convert_warehouse_id": false,
+          "warehouse_pairs": [
+            {
+              "name_column": "Warehouse name",
+              "stock_column": "Available units"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "platform_name": "Target",
+      "inventory_type": "separate",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "Supplier Sku",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true,
+          "convert_warehouse_id": true,
+          "warehouse_pairs": [
+            {
+              "name_column": "Warehouse Name",
+              "stock_column": "Quantity"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "platform_name": "OverStock",
+      "inventory_type": "separate",
+      "convert_to_csv": true,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "Supplier Sku",
+          "data_start_row": 0,
+          "skip_if_contains": [],
+          "process_all": true,
+          "convert_warehouse_id": true,
+          "warehouse_pairs": [
+            {
+              "name_column": "Warehouse Name",
+              "stock_column": "Quantity"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "platform_name": "TK",
+      "inventory_type": "separate",
+      "convert_to_csv": false,
+      "sheets_to_process": [
+        {
+          "sheet_names": [
+            "Template"
+          ],
+          "header": 2,
+          "sku_column": "Seller SKU",
+          "data_start_row": 3,
+          "skip_if_contains": [],
+          "process_all": false,
+          "convert_warehouse_id": true,
+          "warehouse_pairs": [
+            {}
+          ],
+          "combined_warehouse_inventory_column": true
+        }
+      ]
+    }
+  ]
+}
