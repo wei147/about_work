@@ -20,6 +20,7 @@
     },
     {
       "platform_name": "SEARS",
+      "inventory_type": "shared",
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -36,6 +37,7 @@
     },
     {
       "platform_name": "AE",
+      "inventory_type": "shared",
       "sheets_to_process": [
         {
           "sheet_names": [],
@@ -65,6 +67,7 @@
     },
     {
       "platform_name": "MC",
+      "inventory_type": "shared",
       "convert_to_csv": true,
       "sheets_to_process": [
         {
@@ -81,6 +84,7 @@
     },
     {
       "platform_name": "HZ",
+      "inventory_type": "shared",
       "convert_to_csv": true,
       "sheets_to_process": [
         {
@@ -97,6 +101,7 @@
     },
     {
       "platform_name": "Shein",
+      "inventory_type": "shared",
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -124,6 +129,7 @@
     },
     {
       "platform_name": "NEWEGG",
+      "inventory_type": "shared",
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -139,6 +145,7 @@
     },
     {
       "platform_name": "Shopify",
+      "inventory_type": "shared",
       "convert_to_csv": true,
       "sheets_to_process": [
         {
@@ -155,6 +162,7 @@
     },
     {
       "platform_name": "TEMU",
+      "inventory_type": "shared",
       "convert_to_csv": false,
       "sheets_to_process": [
         {
@@ -171,6 +179,7 @@
     },
     {
       "platform_name": "ebay",
+      "inventory_type": "shared",
       "convert_to_csv": false,
       "sheets_to_process": [
         {
@@ -187,6 +196,7 @@
     },
     {
       "platform_name": "JD",
+      "inventory_type": "shared",
       "convert_to_csv": false,
       "sheets_to_process": [
         {
@@ -210,6 +220,16 @@
           ],
           "header": 0,
           "sku_column": "SKU*",
+          "quantity_column": "New Quantity*",
+          "data_start_row": 1,
+          "skip_if_contains": [],
+          "process_all": true
+        },
+        {
+          "sheet_names": [
+          ],
+          "header": 0,
+          "sku_column": "SKU*\n",
           "quantity_column": "New Quantity*",
           "data_start_row": 1,
           "skip_if_contains": [],
@@ -340,7 +360,8 @@
           "data_start_row": 0,
           "skip_if_contains": [],
           "process_all": true,
-          "convert_warehouse_id": true,
+          "convert_warehouse_id": false,
+          "convert_platform_warehouse_name": true,
           "warehouse_pairs": [
             {
               "name_column": "Warehouse Name",
@@ -387,7 +408,8 @@
           "data_start_row": 3,
           "skip_if_contains": [],
           "process_all": false,
-          "convert_warehouse_id": true,
+          "convert_warehouse_id": false,
+          "convert_platform_warehouse_name": true,
           "warehouse_pairs": [
             {}
           ],

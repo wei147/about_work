@@ -8,8 +8,8 @@ from openpyxl.styles import PatternFill
 from datetime import datetime
 import re
 import math
-import pyexcel as p
 import shutil
+import xlwings as xw
 
 # 固定的“市场”字段值
 MARKET_FIELD = "市场"
@@ -357,6 +357,7 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
     sku_column = sheet_info['sku_column']
     data_start_row = sheet_info.get('data_start_row', 0)
     convert_warehouse_id = sheet_info.get('convert_warehouse_id', False)
+    convert_platform_warehouse_name = sheet_info.get('convert_platform_warehouse_name', False)
     summary_column = sheet_info.get('summary_column', None)
 
     warehouse_pairs = sheet_info.get('warehouse_pairs', [])
@@ -428,8 +429,10 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
         '澳洲仓': '澳'
     }
 
-    for ws_row in ws.iter_rows(min_row=header_row + data_start_row + 1):
+    for ws_row in ws.iter_rows(min_row=header_row + data_start_row):
+        # for ws_row in ws.iter_rows(min_row=header_row + data_start_row + 1):
         sku_value = ws_row[sku_column_index - 1].value
+        print(sku_value)
         if pd.isna(sku_value):
             continue
 
@@ -459,7 +462,6 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
             log_update_info(sku_value, "未匹配", "N/A", 0)
             if summary_column and summary_column_index is not None:
                 ws_row[summary_column_index].value = 0
-            print("111")
             print("-" * 50)
             continue
 
@@ -499,10 +501,14 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
 
                 # 转换仓库ID为仓库名称
                 if convert_warehouse_id:
+                    warehouse_names_in_row = convert_warehouse_ids(warehouse_ids_in_row, warehouse_mapping_df)
+
+                # 转换平台仓库名称为仓库名称。其中因为TK平台比较特殊，库存列和仓库列在同一列
+                if convert_platform_warehouse_name:
                     if platform_name == "TikTok":
                         warehouse_names_in_row = convert_warehouse_info(warehouse_names_in_row, warehouse_mapping_df)
                     else:
-                        warehouse_names_in_row = convert_warehouse_ids(warehouse_ids_in_row, warehouse_mapping_df)
+                        warehouse_names_in_row = convert_warehouse_info(warehouse_ids_in_row, warehouse_mapping_df)
 
                 # 初始化一个字典来存储每个仓库的可用库存
                 warehouse_combination_stocks = {warehouse_name: None for warehouse_name in warehouse_names_in_row}
@@ -541,10 +547,13 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
                                     participating_warehouses.append(warehouse_name)
                                     realtime_stocks.append(original_stock)
 
-                        if not participating_warehouses:
-                            print(f"基础 SKU {base_sku} 没有参与分摊的仓库")
-                            # 对于所有仓库，将库存设为 0，保持默认背景色
-                            for name_idx in warehouse_combination_stocks.keys():
+                        # 检查参与分摊的仓库是否包含 Excel 表中的仓库名称
+                        common_warehouses = set(participating_warehouses) & set(warehouse_names_in_row)
+
+                        if not participating_warehouses or not common_warehouses:
+                            # 没有参与分摊的仓库，或者参与分摊的仓库不在 Excel 表中
+                            # 对于 Excel 表中的每个仓库，检查其是否存在于库存数据中
+                            for name_idx, stock_idx in zip(warehouse_names_in_row, warehouse_stock_indices):
                                 if name_idx in all_warehouse_columns:
                                     # 仓库存在于库存数据中，但库存为 0
                                     warehouse_combination_stocks[name_idx] = 0
@@ -552,6 +561,7 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
                                 else:
                                     # 仓库不存在于库存数据中
                                     warehouse_combination_stocks[name_idx] = {'value': 0, 'red_fill': True}
+                            print(f"基础 SKU {base_sku} 没有可用的参与分摊仓库")
                             continue  # 处理下一个基础 SKU
 
                         # 分摊锁定库存
@@ -692,18 +702,31 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
                 participating_warehouses.append(warehouse_name)
                 realtime_stocks.append(adjusted_stock)
 
-        # if not participating_warehouses:
-        #     for stock_idx in warehouse_stock_indices:
-        #         ws_row[stock_idx].value = 0
-        #         ws_row[stock_idx].fill = RED_FILL
+        # 获取仓库名称列表
+        if platform_name == "TikTok":
+            warehouse_names_in_row = warehouse_ids.copy()
+        else:
+            warehouse_ids_in_row = [ws_row[idx].value if idx is not None else None for idx in
+                                    warehouse_id_indices]
+            warehouse_ids_in_row = [str(name).strip() if name is not None else None for name in
+                                    warehouse_ids_in_row]
+            warehouse_names_in_row = warehouse_ids_in_row.copy()
 
-        if not participating_warehouses:
-            # 获取 Excel 表中的仓库名称和对应的列索引
-            warehouse_names_in_row = []  # 初始化仓库名称列表
-            for idx in warehouse_stock_indices:
-                warehouse_name = ws_row[idx].value  # 获取 Excel 表中该列的仓库名称
-                warehouse_names_in_row.append(warehouse_name)
+        if convert_warehouse_id:
+            warehouse_names_in_row = convert_warehouse_ids(warehouse_ids_in_row, warehouse_mapping_df)
 
+        # 转换平台仓库名称为仓库名称。其中因为TK平台比较特殊，库存列和仓库列在同一列
+        if convert_platform_warehouse_name:
+            if platform_name == "TikTok":
+                warehouse_names_in_row = convert_warehouse_info(warehouse_names_in_row, warehouse_mapping_df)
+            else:
+                warehouse_names_in_row = convert_warehouse_info(warehouse_ids_in_row, warehouse_mapping_df)
+
+        # 检查参与分摊的仓库是否包含 Excel 表中的仓库名称
+        common_warehouses = set(participating_warehouses) & set(warehouse_names_in_row)
+
+        if not participating_warehouses or not common_warehouses:
+            # 没有参与分摊的仓库，或者参与分摊的仓库不在 Excel 表中
             # 对于 Excel 表中的每个仓库，检查其是否存在于库存数据中
             for name_idx, stock_idx in zip(warehouse_names_in_row, warehouse_stock_indices):
                 if name_idx in warehouse_columns:
@@ -716,7 +739,7 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
                     ws_row[stock_idx].fill = RED_FILL  # 设置红色背景
             if summary_column and summary_column_index is not None:
                 ws_row[summary_column_index].value = 0
-            print(f"SKU：{sku_value} -> 自定义 SKU：{custom_sku} 没有参与分摊的仓库")
+            print(f"SKU：{sku_value} -> 自定义 SKU：{custom_sku} 没有可用的参与分摊仓库")
             print("-" * 50)
             continue
 
@@ -727,22 +750,6 @@ def update_inventory_separate(ws, sku_mapping_df, realtime_inventory_df, warehou
         print(f"SKU: {sku_value}, 自定义 SKU: {custom_sku}, 仓区: {warehouse_market}, 锁定库存: {locked_inventory}")
         print(f"参与分摊的仓库: {participating_warehouses}, 分摊仓库数量: {len(participating_warehouses)}")
         print(f"对应的调整后实时库存: {realtime_stocks}")
-
-        # 获取仓库名称列表
-        if platform_name == "TikTok":
-            warehouse_names_in_row = warehouse_ids.copy()
-        else:
-            warehouse_ids_in_row = [ws_row[idx].value if idx is not None else None for idx in
-                                    warehouse_id_indices]
-            warehouse_ids_in_row = [str(name).strip() if name is not None else None for name in
-                                    warehouse_ids_in_row]
-            warehouse_names_in_row = warehouse_ids_in_row.copy()
-
-        if convert_warehouse_id:
-            if platform_name == "TikTok" or platform_name == "Target":
-                warehouse_names_in_row = convert_warehouse_info(warehouse_names_in_row, warehouse_mapping_df)
-            else:
-                warehouse_names_in_row = convert_warehouse_ids(warehouse_ids_in_row, warehouse_mapping_df)
 
         for warehouse_name, allocation in zip(participating_warehouses, allocated_locked_inventory):
             original_stock = inventory_rows.iloc[0][warehouse_name]
@@ -796,20 +803,25 @@ def set_inventory_to_zero(ws_row, warehouse_stock_indices, summary_column_index)
 
 
 def convert_xls_to_xlsx(xls_file_path):
-    # 读取 .xls 文件
-    records = p.get_records(file_name=xls_file_path)
-    # 生成新的 .xlsx 文件路径
-    xlsx_file_path = xls_file_path.replace('.xls', '.xlsx')
-    # 将数据保存为 .xlsx 格式
-    p.save_as(records=records, dest_file_name=xlsx_file_path)
-    print(f"已成功将 {xls_file_path} 转换为 {xlsx_file_path}")
-    return xlsx_file_path
+    # 启动 Excel 应用，隐藏窗口
+    app = xw.App(visible=False)
 
-    # xlsx_file_path = xls_file_path.replace('.xls', '.xlsx')
-    # df = pd.read_excel(xls_file_path, engine='xlrd')
-    # df.to_excel(xlsx_file_path, index=False, engine='openpyxl')
-    # print(f"Converted {xls_file_path} to {xlsx_file_path}")
-    # return xlsx_file_path
+    try:
+        # 打开 .xls 文件
+        wb = app.books.open(xls_file_path)
+
+        # 生成新的 .xlsx 文件路径
+        xlsx_file_path = xls_file_path.replace('.xls', '.xlsx')
+
+        # 保存为 .xlsx 文件格式
+        wb.save(xlsx_file_path)
+        print(f"已成功将 {xls_file_path} 转换为 {xlsx_file_path}")
+    finally:
+        # 关闭工作簿和 Excel 应用
+        wb.close()
+        app.quit()
+    print(xlsx_file_path)
+    return xlsx_file_path
 
 
 def process_inventory_file(file_path, config, sku_mapping_df, shared_inventory_df, realtime_inventory_df,
@@ -995,13 +1007,16 @@ def process_folder(folder_path, config, sku_mapping_df, shared_inventory_df, rea
 
 
 def main():
+    current_date = datetime.now().strftime("%m月%d日")
     config_path = r"D:\my-project\inventory_update\Inventory_updates_wei\区分仓库_project\config-9月13日_区分仓库.json"
-    sku_mapping_path = r"D:\my-project\inventory_update\Inventory_updates_wei\test\原始表\所需表格\SKU映射汇总表_加来源.csv"
-    shared_inventory_path = r"D:\my-project\inventory_update\Inventory_updates_wei\test\原始表\所需表格\504-shared_inventory-09月18日.csv"
-    realtime_inventory_path = r"D:\my-project\inventory_update\Inventory_updates_wei\test\原始表\所需表格\实时仓库存表20240918.xlsx"
-    warehouse_mapping_path = r"D:\my-project\inventory_update\Inventory_updates_wei\test\原始表\所需表格\仓库映射.xlsx"
-    source_folder = r"D:\my-project\inventory_update\Inventory_updates_wei\test\原始表"
-    output_base_folder = r"D:\my-project\inventory_update\Inventory_updates_wei\test\结果表"
+    sku_mapping_path = r"W:\库存查询原始表\配置文件\SKU映射汇总表_加来源.csv"
+    shared_inventory_path = rf"W:\库存查询原始表\每日库存数据\504-shared_inventory-{current_date}.csv"
+    print(shared_inventory_path)
+    # source_folder = r"W:\库存查询原始表"
+    source_folder = r"W:\库存查询原始表\RPA_魏土金_test\原始表"
+    output_base_folder = r"W:\库存查询原始表\RPA_魏土金_test\结果表"
+    realtime_inventory_path = r"W:\库存查询原始表\每日库存数据\海外仓库存表20241010.xls"
+    warehouse_mapping_path = r"W:\库存查询原始表\配置文件\仓库映射.xlsx"
 
     '''
     config_path = r"D:\my-project\inventory_update\Inventory_updates_wei\区分仓库_project\config-9月13日_区分仓库.json"
@@ -1016,35 +1031,45 @@ def main():
     config = load_config(config_path)
 
     platform_mapping = {
-        "SEARS": "Sears",
-        "Allegro": "Allegro",
-        "AE": "速卖通",
-        "Wal": "Walmart",
-        "MC": "MoreCommerce",
-        "HZ": "Houzz",
-        "Shein": "Shein",
-        "NEWEGG": "NewEgg",
-        "Shopify": "Shopify",
-        "TEMU": "TEMU",
-        "ebay": "ebay",
-        "JD": "京东国际平台",
-        # ---- 区分仓库的平台 -----
-        "HD": "HomeDepot",
-        "LW": "Lowes",
-        "OS": "OverStock",
-        "Target": "Target",
-        "AMZ": "Amazon",
+        # "SEARS": "Sears",
+        # "Allegro": "Allegro",
+        # "AE": "速卖通",
+        # "Wal": "Walmart",
+        # "MC": "MoreCommerce",
+        # "HZ": "Houzz",
+        # "Shein": "Shein",
+        # "NEWEGG": "NewEgg",
+        # "Shopify": "Shopify",
+        # "TEMU": "TEMU",
+        # "ebay": "ebay",
+        # "JD": "京东国际平台",
+        # # ---- 区分仓库的平台 -----
+        # "HD": "HomeDepot",
+        # "LW": "Lowes",
+        "WF": "Wayfair",
+        # "OS": "OverStock",
+        # "Target": "Target",
+        # "AMZ": "Amazon",
         "TK": "TikTok",
     }
 
     # 加载SKU映射表
-    sku_mapping_df = pd.read_csv(sku_mapping_path, encoding='gbk')
+    sku_mapping_df = None
+    try:
+        # 尝试使用主要编码读取CSV文件
+        sku_mapping_df = pd.read_csv(sku_mapping_path, encoding='gbk')
+    except UnicodeDecodeError:
+        try:
+            sku_mapping_df = pd.read_csv(sku_mapping_path, encoding='utf-8-sig')
+        except Exception as e:
+            raise e
 
     # 加载共享库存表
     shared_inventory_df = pd.read_csv(shared_inventory_path, encoding='gbk')
     print(f"共享库存表已加载，共有 {len(shared_inventory_df)} 条记录。")
 
     # 加载实时库存表
+    realtime_inventory_path = convert_xls_to_xlsx(realtime_inventory_path)
     realtime_inventory_df = pd.read_excel(realtime_inventory_path, engine='openpyxl')
     print(f"实时库存表已加载，共有 {len(realtime_inventory_df)} 条记录。")
 
@@ -1058,8 +1083,8 @@ def main():
 
     for sub_folder_name in os.listdir(source_folder):
         sub_folder_path = os.path.join(source_folder, sub_folder_name)
-        if os.path.isdir(sub_folder_path) and any(
-                keyword in sub_folder_name for keyword in ["战狼B组-邱新栋", "陈天组 - 组合sku"]):
+        if os.path.isdir(sub_folder_path) and any(keyword in sub_folder_name for keyword in ["研究院-易锦涛"]):
+        # if os.path.isdir(sub_folder_path) and any(keyword in sub_folder_name for keyword in ["三角洲组-何玉凤"]):
             print(f"Processing folder: {sub_folder_name}")
             output_sub_folder = os.path.join(output_folder, sub_folder_name)
             os.makedirs(output_sub_folder, exist_ok=True)
