@@ -102,6 +102,7 @@
     {
       "platform_name": "Shein",
       "inventory_type": "shared",
+      "max_sheets_to_process": 1,
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -214,6 +215,7 @@
     {
       "platform_name": "Wal",
       "inventory_type": "shared",
+      "max_sheets_to_process": 1,
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -241,6 +243,8 @@
       "platform_name": "HD",
       "inventory_type": "separate",
       "convert_to_csv": false,
+      "convert_to_xls": true,
+      "max_sheets_to_process": 1,
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -273,6 +277,8 @@
       "platform_name": "LW",
       "inventory_type": "separate",
       "convert_to_csv": false,
+      "convert_to_xls": true,
+      "max_sheets_to_process": 1,
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -304,14 +310,15 @@
     {
       "platform_name": "WF",
       "inventory_type": "separate",
-      "convert_to_csv": false,
+      "convert_to_csv": true,
+      "max_sheets_to_process": 1,
       "sheets_to_process": [
         {
           "sheet_names": [
           ],
           "header": 0,
           "sku_column": "Supplier Part#",
-          "data_start_row": 1,
+          "data_start_row": 0,
           "skip_if_contains": [],
           "process_all": true,
           "convert_warehouse_id": true,
@@ -327,7 +334,8 @@
     {
       "platform_name": "AMZ",
       "inventory_type": "separate",
-      "convert_to_csv": true,
+      "convert_to_csv": false,
+      "convert_to_xls": true,
       "sheets_to_process": [
         {
           "sheet_names": [
@@ -372,8 +380,9 @@
       ]
     },
     {
-      "platform_name": "OverStock",
+      "platform_name": "OS",
       "inventory_type": "separate",
+      "max_sheets_to_process": 1,
       "convert_to_csv": true,
       "sheets_to_process": [
         {
@@ -384,7 +393,8 @@
           "data_start_row": 0,
           "skip_if_contains": [],
           "process_all": true,
-          "convert_warehouse_id": true,
+          "convert_warehouse_id": false,
+          "convert_platform_warehouse_name": true,
           "warehouse_pairs": [
             {
               "name_column": "Warehouse Name",
@@ -398,16 +408,18 @@
       "platform_name": "TK",
       "inventory_type": "separate",
       "convert_to_csv": false,
+      "max_sheets_to_process": 1,
       "sheets_to_process": [
         {
           "sheet_names": [
-            "Template"
           ],
           "header": 2,
           "sku_column": "Seller SKU",
           "data_start_row": 3,
-          "skip_if_contains": [],
-          "process_all": false,
+          "skip_if_contains": [
+            "Instruction"
+          ],
+          "process_all": true,
           "convert_warehouse_id": false,
           "convert_platform_warehouse_name": true,
           "warehouse_pairs": [
